@@ -1,0 +1,15 @@
+---
+version: '3'
+services:
+  retail-postgresql:
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_USER: "retail"
+      POSTGRES_DB: "retail"
+      POSTGRES_PASSWORD: "retail"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "50432:5432"
+    volumes:
+      - ./.data/postgresql:/var/lib/postgresql/data/pgdata
+      # - ./:/docker-entrypoint-initdb.d/

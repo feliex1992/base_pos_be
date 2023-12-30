@@ -1,0 +1,46 @@
+---
+version: '3'
+services:
+  retail-postgresql:
+    container_name: retail-postgresql-db
+    image: postgres:11-alpine
+    environment:
+      POSTGRES_USER: "retail"
+      POSTGRES_DB: "retail"
+      POSTGRES_PASSWORD: "retail"
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.data/postgresql:/var/lib/postgresql/data/pgdata
+    networks:
+      - retail-postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nestjs-api:
+    container_name: retail-api-app
+    image: feliex1992/beenevits-api:ba-1.0.2
+    environment:
+      PORT: 3001
+      JWT_SECRET: "secret-prod-202304"
+      JWT_EXPIRES: "3h"
+      RETAIL_DB_HOST: "retail-postgresql"
+      RETAIL_DB_PORT: 5432
+      RETAIL_DB_USER: "retail"
+      RETAIL_DB_PASS: "retail"
+      RETAIL_DB_NAME: "retail"
+    ports:
+      - "3001:3001"
+    depends_on:
+      retail-postgresql:
+        condition: service_healthy
+    networks:
+      - retail-postgresql
+
+networks:
+  retail-postgresql:
+    driver: bridge
